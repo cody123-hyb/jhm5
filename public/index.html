@@ -1,609 +1,538 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>彩虹過三關</title>
     <style>
-        /* 全局變量定義 */
-        :root {
-            --primary: #7c4dff; /* 主色調 - 紫色 */
-            --primary-light: #b388ff; /* 淺紫色 */
-            --primary-dark: #651fff; /* 深紫色 */
-            --secondary: #ff4081; /* 次要色 - 粉色 */
-            --success: #00c853; /* 成功色 - 綠色 */
-            --danger: #ff1744; /* 危險色 - 紅色 */
-            --light: #f5f5f5; /* 淺色背景 */
-            --dark: #212121; /* 深色文字 */
-            --gray: #9e9e9e; /* 灰色 */
-            --border-radius: 16px; /* 圓角大小 */
-            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* 陰影效果 */
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 過渡動畫 */
-        }
-
-        /* 基礎樣式設置 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
-            color: var(--dark);
-        }
-
-        /* 主容器樣式 */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-        }
-
-        /* 標題樣式 */
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 10px;
-            background: linear-gradient(90deg, var(--primary-light), var(--secondary));
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
-        }
-
-        /* 任務列表容器 */
-        .task-container {
-            padding: 30px;
-        }
-
-        /* 任務列表樣式 */
-        .task-list {
-            list-style: none;
-            margin-bottom: 30px;
-        }
-
-        /* 單個任務項目樣式 */
-        .task-item {
-            background: white;
-            margin-bottom: 15px;
-            padding: 18px 20px;
-            border-radius: var(--border-radius);
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            transition: var(--transition);
-            animation: fadeIn 0.4s ease;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid var(--primary);
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-
-        /* 淡入動畫 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        h1 {
+            color: #6a11cb;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            font-size: 2.5em;
         }
-
-        /* 任務項目懸停效果 */
-        .task-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        
+        .game-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            perspective: 1000px;
         }
-
-        /* 已完成任務樣式 */
-        .task-item.completed .task-text {
-            text-decoration: line-through;
-            color: var(--gray);
-        }
-
-        /* 任務勾選框樣式 */
-        .task-checkbox {
-            margin-right: 15px;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            accent-color: var(--success);
-        }
-
-        /* 任務文字樣式 */
-        .task-text {
-            flex: 1;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        /* 任務編輯輸入框 */
-        .task-edit-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-        }
-
-        /* 操作按鈕容器 */
-        .task-actions {
-            display: flex;
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
             gap: 10px;
-            margin-left: 10px;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
         }
-
-        /* 操作按鈕基礎樣式 */
-        .task-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-            padding: 5px;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
+        
+        .cell {
+            background: white;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            font-size: 50px;
+            font-weight: bold;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
             position: relative;
         }
-
-        /* 按鈕懸停效果 */
-        .task-btn:hover {
-            transform: scale(1.1);
+        
+        .cell:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
         }
-
-        /* 按鈕圖標樣式 */
-        .btn-icon {
-            width: 18px;
-            height: 18px;
-            transition: var(--transition);
+        
+        .cell.x {
+            color: #ff4d4d;
+            text-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
         }
-
-        /* 編輯按鈕樣式 */
-        .edit-btn {
-            background: rgba(124, 77, 255, 0.1);
+        
+        .cell.o {
+            color: #4d79ff;
+            text-shadow: 0 0 10px rgba(77, 121, 255, 0.5);
         }
-
-        .edit-btn:hover {
-            background: rgba(124, 77, 255, 0.2);
+        
+        .winning-cell {
+            animation: pulse 1s infinite alternate;
+            background: linear-gradient(45deg, #f6d365, #fda085);
         }
-
-        .edit-btn .btn-icon {
-            stroke: var(--primary);
+        
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+                box-shadow: 0 0 0 rgba(255, 215, 0, 0.4);
+            }
+            to {
+                transform: scale(1.05);
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            }
         }
-
-        /* 刪除按鈕樣式 */
-        .delete-btn {
-            background: rgba(255, 23, 68, 0.1);
-        }
-
-        .delete-btn:hover {
-            background: rgba(255, 23, 68, 0.2);
-        }
-
-        .delete-btn .btn-icon {
-            stroke: var(--danger);
-        }
-
-        /* 添加任務區域 */
-        .add-task {
-            display: flex;
-            margin-top: 20px;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        /* 任務輸入框 */
-        .task-input {
-            flex: 1;
-            padding: 15px 20px;
-            border: none;
-            font-size: 1rem;
-            outline: none;
-            background: var(--light);
-            transition: var(--transition);
-        }
-
-        .task-input:focus {
-            background: white;
-        }
-
-        /* 添加按鈕 */
-        .add-btn {
-            padding: 0 25px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .add-btn:hover {
-            background: var(--primary-dark);
-        }
-
-        /* 空狀態提示 */
-        .empty-state {
+        
+        .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             text-align: center;
-            padding: 40px 0;
-            color: var(--gray);
-            font-size: 1rem;
+            z-index: 10;
+            display: none;
         }
-
-        /* 響應式設計 - 移動設備 */
-        @media (max-width: 600px) {
-            .container {
-                border-radius: 0;
+        
+        .message h2 {
+            color: #6a11cb;
+            margin-top: 0;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(106, 17, 203, 0.3);
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(106, 17, 203, 0.4);
+        }
+        
+        .restart-btn:active {
+            transform: translateY(0);
+        }
+        
+        .scoreboard {
+            display: flex;
+            justify-content: space-between;
+            width: 300px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .player {
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .player.active {
+            font-weight: bold;
+            color: #6a11cb;
+        }
+        
+        .player-x {
+            border-right: 2px solid #eee;
+        }
+        
+        .score {
+            font-size: 24px;
+            margin-top: 5px;
+            color: #6a11cb;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: confetti-fall 5s linear forwards;
+            z-index: 5;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
             }
-            
-            header {
-                padding: 25px 20px;
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
             }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .task-container {
-                padding: 20px;
-            }
-            
-            .task-item {
-                padding: 15px;
-            }
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+        }
+        
+        .game-mode {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .mode-btn {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(to right, #f6d365, #fda085);
+        }
+        
+        .mode-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .dark-theme {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: white;
+        }
+        
+        .dark-theme .board .cell {
+            background: #333;
+            color: white;
+        }
+        
+        .dark-theme .scoreboard {
+            background: #333;
+            color: white;
+        }
+        
+        .dark-theme .player.active {
+            color: #f6d365;
+        }
+        
+        .dark-theme .score {
+            color: #f6d365;
+        }
+        
+        .dark-theme h1 {
+            color: #f6d365;
         }
     </style>
 </head>
 <body>
-    <!-- 主容器 -->
-    <div class="container">
-        <!-- 標題區域 -->
-        <header>
-            <h1>To-Do List</h1>
-        </header>
-        
-        <!-- 任務列表區域 -->
-        <div class="task-container">
-            <!-- 任務列表 -->
-            <ul class="task-list" id="tasks">
-                <div class="empty-state">暫無任務，添加一個吧</div>
-            </ul>
-            
-            <!-- 添加任務表單 -->
-            <div class="add-task">
-                <input type="text" class="task-input" placeholder="添加新任務..." id="task-input">
-                <button class="add-btn" onclick="addTask()">添加</button>
-            </div>
+    <button class="theme-toggle" onclick="toggleTheme()">切換主題</button>
+    <h1>彩虹過三關</h1>
+    
+    <div class="game-mode">
+        <button class="mode-btn active" onclick="setGameMode('pvp')">雙人對戰</button>
+        <button class="mode-btn" onclick="setGameMode('ai')">對戰電腦</button>
+    </div>
+    
+    <div class="scoreboard">
+        <div class="player player-x active" id="player-x">
+            <div>玩家 X</div>
+            <div class="score" id="score-x">0</div>
+        </div>
+        <div class="player player-o" id="player-o">
+            <div>玩家 O</div>
+            <div class="score" id="score-o">0</div>
         </div>
     </div>
     
-    <!-- 編輯按鈕SVG圖標 -->
-    <svg style="display: none;">
-        <symbol id="edit-icon" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" 
-                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
-        </symbol>
+    <div class="game-container">
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
         
-        <!-- 刪除按鈕SVG圖標 -->
-        <symbol id="delete-icon" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" 
-                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-        </symbol>
-    </svg>
+        <div class="message" id="message">
+            <h2 id="message-text">X 獲勝!</h2>
+            <button class="restart-btn" onclick="restartGame()">再來一局</button>
+        </div>
+    </div>
     
     <script>
-        // 當前正在編輯的任務索引
-        let editingIndex = -1;
+        const board = document.getElementById('board');
+        const cells = document.querySelectorAll('.cell');
+        const message = document.getElementById('message');
+        const messageText = document.getElementById('message-text');
+        const playerX = document.getElementById('player-x');
+        const playerO = document.getElementById('player-o');
+        const scoreX = document.getElementById('score-x');
+        const scoreO = document.getElementById('score-o');
+        const modeButtons = document.querySelectorAll('.mode-btn');
         
-        /**
-         * 添加新任務或更新現有任務
-         */
-        function addTask() {
-            // 獲取輸入框元素和輸入值
-            const input = document.getElementById('task-input');
-            const taskText = input.value.trim();
+        let currentPlayer = 'x';
+        let gameActive = true;
+        let gameState = ['', '', '', '', '', '', '', '', ''];
+        let scores = { x: 0, o: 0 };
+        let gameMode = 'pvp'; // 預設為雙人模式
+        
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // 橫
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // 豎
+            [0, 4, 8], [2, 4, 6]             // 斜
+        ];
+        
+        // 設置遊戲模式
+        function setGameMode(mode) {
+            gameMode = mode;
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            restartGame();
+        }
+        
+        // 初始化遊戲
+        function initGame() {
+            cells.forEach(cell => {
+                cell.classList.remove('x', 'o', 'winning-cell');
+                cell.textContent = '';
+                cell.addEventListener('click', handleCellClick);
+            });
             
-            // 如果輸入不為空
-            if (taskText) {
-                const taskList = document.getElementById('tasks');
-                
-                // 移除空狀態提示（如果存在）
-                const emptyState = taskList.querySelector('.empty-state');
-                if (emptyState) {
-                    emptyState.remove();
-                }
-                
-                // 如果是編輯模式
-                if (editingIndex !== -1) {
-                    // 更新現有任務
-                    const taskItems = taskList.querySelectorAll('.task-item');
-                    if (taskItems[editingIndex]) {
-                        const taskTextSpan = taskItems[editingIndex].querySelector('.task-text');
-                        taskTextSpan.textContent = taskText;
-                    }
-                    editingIndex = -1; // 重置編輯索引
-                } else {
-                    // 創建新任務元素
-                    const taskItem = document.createElement('li');
-                    taskItem.className = 'task-item';
-                    
-                    // 創建勾選框
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'task-checkbox';
-                    checkbox.onchange = function() {
-                        // 切換完成狀態
-                        taskTextSpan.classList.toggle('completed');
-                        saveTasks();
-                    };
-                    
-                    // 創建任務文字
-                    const taskTextSpan = document.createElement('span');
-                    taskTextSpan.className = 'task-text';
-                    taskTextSpan.textContent = taskText;
-                    
-                    // 創建操作按鈕容器
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'task-actions';
-                    
-                    // 創建編輯按鈕
-                    const editBtn = document.createElement('button');
-                    editBtn.className = 'task-btn edit-btn';
-                    editBtn.title = '編輯';
-                    editBtn.onclick = function() {
-                        // 設置編輯模式
-                        editTask(taskItem, taskTextSpan);
-                    };
-                    
-                    // 添加編輯圖標
-                    const editIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    editIcon.innerHTML = '<use xlink:href="#edit-icon"></use>';
-                    editIcon.classList.add('btn-icon');
-                    editBtn.appendChild(editIcon);
-                    
-                    // 創建刪除按鈕
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'task-btn delete-btn';
-                    deleteBtn.title = '刪除';
-                    deleteBtn.onclick = function() {
-                        // 刪除任務
-                        taskItem.remove();
-                        // 如果沒有任務了，顯示空狀態
-                        if (taskList.children.length === 0) {
-                            showEmptyState();
-                        }
-                        saveTasks();
-                    };
-                    
-                    // 添加刪除圖標
-                    const deleteIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    deleteIcon.innerHTML = '<use xlink:href="#delete-icon"></use>';
-                    deleteIcon.classList.add('btn-icon');
-                    deleteBtn.appendChild(deleteIcon);
-                    
-                    // 組合所有元素
-                    actionsDiv.appendChild(editBtn);
-                    actionsDiv.appendChild(deleteBtn);
-                    taskItem.appendChild(checkbox);
-                    taskItem.appendChild(taskTextSpan);
-                    taskItem.appendChild(actionsDiv);
-                    
-                    // 添加到列表
-                    taskList.appendChild(taskItem);
-                }
-                
-                // 清空輸入框
-                input.value = '';
-                
-                // 保存任務
-                saveTasks();
+            gameState = ['', '', '', '', '', '', '', '', ''];
+            gameActive = true;
+            message.style.display = 'none';
+            
+            // 隨機決定先手玩家
+            currentPlayer = Math.random() > 0.5 ? 'x' : 'o';
+            updatePlayerTurn();
+            
+            // 如果是AI模式且AI先手，則AI先走
+            if (gameMode === 'ai' && currentPlayer === 'o') {
+                setTimeout(makeAIMove, 500);
             }
         }
         
-        /**
-         * 編輯任務
-         * @param {HTMLElement} taskItem - 任務項目元素
-         * @param {HTMLElement} taskTextSpan - 任務文字元素
-         */
-        function editTask(taskItem, taskTextSpan) {
-            // 獲取任務列表和所有任務項目
-            const taskList = document.getElementById('tasks');
-            const taskItems = taskList.querySelectorAll('.task-item');
+        // 處理格子點擊
+        function handleCellClick(e) {
+            const clickedCell = e.target;
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
             
-            // 找到當前任務的索引
-            editingIndex = Array.from(taskItems).indexOf(taskItem);
+            if (gameState[clickedCellIndex] !== '' || !gameActive) {
+                return;
+            }
             
-            // 獲取當前任務文字
-            const currentText = taskTextSpan.textContent;
+            // 更新遊戲狀態
+            gameState[clickedCellIndex] = currentPlayer;
+            clickedCell.textContent = currentPlayer.toUpperCase();
+            clickedCell.classList.add(currentPlayer);
             
-            // 創建編輯輸入框
-            const editInput = document.createElement('input');
-            editInput.type = 'text';
-            editInput.className = 'task-edit-input';
-            editInput.value = currentText;
+            // 檢查遊戲結果
+            checkResult();
             
-            // 替換文字為輸入框
-            taskTextSpan.replaceWith(editInput);
-            editInput.focus();
-            
-            // 輸入框回車事件
-            editInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    // 更新任務文字
-                    taskTextSpan.textContent = editInput.value.trim();
-                    editInput.replaceWith(taskTextSpan);
-                    editingIndex = -1;
-                    saveTasks();
-                }
-            });
-            
-            // 輸入框失去焦點事件
-            editInput.addEventListener('blur', function() {
-                // 如果沒有按下回車，恢復原狀
-                taskTextSpan.textContent = editInput.value.trim();
-                editInput.replaceWith(taskTextSpan);
-                editingIndex = -1;
-                saveTasks();
-            });
-        }
-        
-        /**
-         * 顯示空狀態提示
-         */
-        function showEmptyState() {
-            const taskList = document.getElementById('tasks');
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'empty-state';
-            emptyDiv.textContent = '暫無任務，添加一個吧';
-            taskList.appendChild(emptyDiv);
-        }
-        
-        /**
-         * 保存任務到本地存儲
-         */
-        function saveTasks() {
-            const taskList = document.getElementById('tasks');
-            const tasks = [];
-            
-            // 收集所有任務數據
-            taskList.querySelectorAll('.task-item').forEach(item => {
-                tasks.push({
-                    text: item.querySelector('.task-text').textContent,
-                    completed: item.querySelector('.task-checkbox').checked
-                });
-            });
-            
-            // 保存到本地存儲
-            localStorage.setItem('todoTasks', JSON.stringify(tasks));
-        }
-        
-        /**
-         * 從本地存儲加載任務
-         */
-        function loadTasks() {
-            const savedTasks = localStorage.getItem('todoTasks');
-            if (savedTasks) {
-                const tasks = JSON.parse(savedTasks);
-                const taskList = document.getElementById('tasks');
-                
-                // 清空當前列表
-                taskList.innerHTML = '';
-                
-                // 如果沒有任務，顯示空狀態
-                if (tasks.length === 0) {
-                    showEmptyState();
-                    return;
-                }
-                
-                // 重新創建所有任務
-                tasks.forEach(task => {
-                    const taskItem = document.createElement('li');
-                    taskItem.className = 'task-item';
-                    
-                    // 創建勾選框
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'task-checkbox';
-                    if (task.completed) {
-                        checkbox.checked = true;
-                    }
-                    checkbox.onchange = function() {
-                        taskTextSpan.classList.toggle('completed');
-                        saveTasks();
-                    };
-                    
-                    // 創建任務文字
-                    const taskTextSpan = document.createElement('span');
-                    taskTextSpan.className = 'task-text';
-                    taskTextSpan.textContent = task.text;
-                    if (task.completed) {
-                        taskTextSpan.classList.add('completed');
-                    }
-                    
-                    // 創建操作按鈕容器
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'task-actions';
-                    
-                    // 創建編輯按鈕
-                    const editBtn = document.createElement('button');
-                    editBtn.className = 'task-btn edit-btn';
-                    editBtn.title = '編輯';
-                    editBtn.onclick = function() {
-                        editTask(taskItem, taskTextSpan);
-                    };
-                    
-                    // 添加編輯圖標
-                    const editIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    editIcon.innerHTML = '<use xlink:href="#edit-icon"></use>';
-                    editIcon.classList.add('btn-icon');
-                    editBtn.appendChild(editIcon);
-                    
-                    // 創建刪除按鈕
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'task-btn delete-btn';
-                    deleteBtn.title = '刪除';
-                    deleteBtn.onclick = function() {
-                        taskItem.remove();
-                        if (taskList.children.length === 0) {
-                            showEmptyState();
-                        }
-                        saveTasks();
-                    };
-                    
-                    // 添加刪除圖標
-                    const deleteIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    deleteIcon.innerHTML = '<use xlink:href="#delete-icon"></use>';
-                    deleteIcon.classList.add('btn-icon');
-                    deleteBtn.appendChild(deleteIcon);
-                    
-                    // 組合所有元素
-                    actionsDiv.appendChild(editBtn);
-                    actionsDiv.appendChild(deleteBtn);
-                    taskItem.appendChild(checkbox);
-                    taskItem.appendChild(taskTextSpan);
-                    taskItem.appendChild(actionsDiv);
-                    
-                    // 添加到列表
-                    taskList.appendChild(taskItem);
-                });
+            // 如果是AI模式且遊戲繼續，則AI走棋
+            if (gameActive && gameMode === 'ai' && currentPlayer === 'o') {
+                setTimeout(makeAIMove, 500);
             }
         }
         
-        // 初始化 - 加載保存的任務
-        window.onload = function() {
-            loadTasks();
+        // AI走棋
+        function makeAIMove() {
+            if (!gameActive) return;
             
-            // 允許按回車鍵添加任務
-            document.getElementById('task-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    addTask();
+            // 簡單的AI邏輯：
+            // 1. 首先檢查AI是否能直接獲勝
+            // 2. 然後檢查是否需要阻止玩家獲勝
+            // 3. 否則隨機選擇一個可用的格子
+            
+            let move = findWinningMove('o'); // 檢查AI是否能贏
+            if (move === -1) {
+                move = findWinningMove('x'); // 檢查是否需要阻止玩家
+            }
+            if (move === -1) {
+                move = findRandomMove(); // 隨機選擇
+            }
+            
+            // 執行AI的移動
+            if (move !== -1) {
+                gameState[move] = currentPlayer;
+                cells[move].textContent = currentPlayer.toUpperCase();
+                cells[move].classList.add(currentPlayer);
+                checkResult();
+            }
+        }
+        
+        // 尋找獲勝的移動
+        function findWinningMove(player) {
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                // 檢查是否有兩個相同標記和一個空格
+                if ((gameState[a] === player && gameState[b] === player && gameState[c] === '') ||
+                    (gameState[a] === player && gameState[c] === player && gameState[b] === '') ||
+                    (gameState[b] === player && gameState[c] === player && gameState[a] === '')) {
+                    // 返回空格的索引
+                    if (gameState[a] === '') return a;
+                    if (gameState[b] === '') return b;
+                    if (gameState[c] === '') return c;
                 }
-            });
-        };
+            }
+            return -1; // 沒有找到獲勝移動
+        }
+        
+        // 尋找隨機移動
+        function findRandomMove() {
+            const availableMoves = [];
+            for (let i = 0; i < gameState.length; i++) {
+                if (gameState[i] === '') {
+                    availableMoves.push(i);
+                }
+            }
+            if (availableMoves.length > 0) {
+                return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+            }
+            return -1; // 沒有可用的移動
+        }
+        
+        // 檢查遊戲結果
+        function checkResult() {
+            let roundWon = false;
+            
+            // 檢查是否獲勝
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                
+                if (gameState[a] === '' || gameState[b] === '' || gameState[c] === '') {
+                    continue;
+                }
+                
+                if (gameState[a] === gameState[b] && gameState[b] === gameState[c]) {
+                    roundWon = true;
+                    
+                    // 高亮顯示獲勝的格子
+                    cells[a].classList.add('winning-cell');
+                    cells[b].classList.add('winning-cell');
+                    cells[c].classList.add('winning-cell');
+                    
+                    // 創建彩色粒子效果
+                    createConfetti();
+                    break;
+                }
+            }
+            
+            // 處理獲勝情況
+            if (roundWon) {
+                scores[currentPlayer]++;
+                updateScores();
+                messageText.textContent = `${currentPlayer.toUpperCase()} 獲勝!`;
+                message.style.display = 'block';
+                gameActive = false;
+                return;
+            }
+            
+            // 檢查是否平局
+            if (!gameState.includes('')) {
+                messageText.textContent = '平局!';
+                message.style.display = 'block';
+                gameActive = false;
+                return;
+            }
+            
+            // 切換玩家
+            currentPlayer = currentPlayer === 'x' ? 'o' : 'x';
+            updatePlayerTurn();
+        }
+        
+        // 更新玩家回合顯示
+        function updatePlayerTurn() {
+            if (currentPlayer === 'x') {
+                playerX.classList.add('active');
+                playerO.classList.remove('active');
+            } else {
+                playerX.classList.remove('active');
+                playerO.classList.add('active');
+            }
+        }
+        
+        // 更新分數顯示
+        function updateScores() {
+            scoreX.textContent = scores.x;
+            scoreO.textContent = scores.o;
+        }
+        
+        // 重新開始遊戲
+        function restartGame() {
+            initGame();
+        }
+        
+        // 創建彩色粒子效果
+        function createConfetti() {
+            const colors = ['#ff4d4d', '#4d79ff', '#6a11cb', '#f6d365', '#fda085', '#a1c4fd'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // 隨機屬性
+                const size = Math.random() * 10 + 5;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const left = Math.random() * 100;
+                const animationDuration = Math.random() * 3 + 2;
+                
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.backgroundColor = color;
+                confetti.style.left = `${left}%`;
+                confetti.style.animationDuration = `${animationDuration}s`;
+                
+                document.body.appendChild(confetti);
+                
+                // 動畫結束後移除
+                setTimeout(() => {
+                    confetti.remove();
+                }, animationDuration * 1000);
+            }
+        }
+        
+        // 切換主題
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+        }
+        
+        // 初始化遊戲
+        initGame();
     </script>
 </body>
 </html>

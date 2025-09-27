@@ -1,1 +1,3 @@
-# jhm5-ex04
+https://symmetrical-engine-jjq6rp9qwxrj39w4-8976.app.github.dev/
+
+https://symmetrical-engine-jjq6rp9qwxrj39w4-8976.app.github.dev/oauth/callback?code=8_isRIZ3jCyS29ftZnZRYqRjwdNBCPuh-WIfIdFGFeQ.vMwkdHbr9jtfCmbkFIOadmZ_QQJqcHdQlg_cA7hkKXQ&scope=account%3Aread%20user%3Aread%20workers%3Awrite%20workers_kv%3Awrite%20workers_routes%3Awrite%20workers_scripts%3Awrite%20workers_tail%3Aread%20d1%3Awrite%20pages%3Awrite%20zone%3Aread%20ssl_certs%3Awrite%20ai%3Awrite%20queues%3Awrite%20pipelines%3Awrite%20secrets_store%3Awrite%20containers%3Awrite%20cloudchamber%3Awrite%20connectivity%3Aadmin%20offline_access&state=mU~jFJDGW9CeVIxIJDPir.rRiFmskSYB

@@ -26,6 +26,7 @@
 			<button type="submit" class="add-btn">新增</button>
 		</form>
 		<ul id="todo-list"></ul>
+		<div id="empty-state" style="text-align:center;color:#aaa;margin-top:1em;display:none;">暫無任務，添加一個吧</div>
 	</div>
 	<script>
 		const API_URL = '/api/todos';
@@ -45,6 +46,15 @@
 			return res.ok;
 		}
 
+		async function updateTodo(id, data) {
+			const res = await fetch(`${API_URL}/${id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(data)
+			});
+			return res.ok;
+		}
+
 		async function deleteTodo(id) {
 			const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 			return res.ok;
@@ -52,20 +62,73 @@
 
 		function renderTodos(todos) {
 			const list = document.getElementById('todo-list');
+			const empty = document.getElementById('empty-state');
 			list.innerHTML = '';
+			if (!todos.length) {
+				empty.style.display = '';
+				return;
+			} else {
+				empty.style.display = 'none';
+			}
 			todos.forEach(todo => {
 				const li = document.createElement('li');
-				li.innerHTML = `
-					<span>${todo.text}</span>
-					<button onclick="deleteAndRefresh('${todo.id}')">刪除</button>
-				`;
+				// 完成狀態
+				const checkbox = document.createElement('input');
+				checkbox.type = 'checkbox';
+				checkbox.checked = !!todo.completed;
+				checkbox.style.marginRight = '1em';
+				checkbox.onchange = async function() {
+					await updateTodo(todo.id, { ...todo, completed: checkbox.checked });
+					loadTodos();
+				};
+				// 任務文字
+				const span = document.createElement('span');
+				span.textContent = todo.text;
+				span.style.flex = '1';
+				if (todo.completed) span.style.textDecoration = 'line-through';
+				// 編輯
+				const editBtn = document.createElement('button');
+				editBtn.textContent = '編輯';
+				editBtn.style.background = '#ffd600';
+				editBtn.style.color = '#333';
+				editBtn.style.marginRight = '0.5em';
+				editBtn.onclick = function() {
+					editTodo(li, todo);
+				};
+				// 刪除
+				const delBtn = document.createElement('button');
+				delBtn.textContent = '刪除';
+				delBtn.onclick = async function() {
+					await deleteTodo(todo.id);
+					loadTodos();
+				};
+				li.appendChild(checkbox);
+				li.appendChild(span);
+				li.appendChild(editBtn);
+				li.appendChild(delBtn);
 				list.appendChild(li);
 			});
 		}
 
-		async function deleteAndRefresh(id) {
-			await deleteTodo(id);
-			loadTodos();
+		function editTodo(li, todo) {
+			li.innerHTML = '';
+			const input = document.createElement('input');
+			input.type = 'text';
+			input.value = todo.text;
+			input.style.flex = '1';
+			const saveBtn = document.createElement('button');
+			saveBtn.textContent = '儲存';
+			saveBtn.style.background = '#2196f3';
+			saveBtn.onclick = async function() {
+				await updateTodo(todo.id, { ...todo, text: input.value });
+				loadTodos();
+			};
+			const cancelBtn = document.createElement('button');
+			cancelBtn.textContent = '取消';
+			cancelBtn.onclick = function() { loadTodos(); };
+			li.appendChild(input);
+			li.appendChild(saveBtn);
+			li.appendChild(cancelBtn);
 		}
 
 		async function loadTodos() {

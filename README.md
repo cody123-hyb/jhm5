@@ -1,3 +1,0 @@
-https://symmetrical-engine-jjq6rp9qwxrj39w4-8976.app.github.dev/oauth/callback?code=b9UNqVz4bmfK2PNJpEPOW9YLKsdjRVb_Sn2mWk30Oy4.A8KyaWBLV0HxyK8htI3KWSW-cD4RiVtZQASMlug8blA&scope=account%3Aread%20user%3Aread%20workers%3Awrite%20workers_kv%3Awrite%20workers_routes%3Awrite%20workers_scripts%3Awrite%20workers_tail%3Aread%20d1%3Awrite%20pages%3Awrite%20zone%3Aread%20ssl_certs%3Awrite%20ai%3Awrite%20queues%3Awrite%20pipelines%3Awrite%20secrets_store%3Awrite%20containers%3Awrite%20cloudchamber%3Awrite%20connectivity%3Aadmin%20offline_access&state=mMi9ybLKNev1HTicvdyHlMAa7Z4KhYwo
-
-https://symmetrical-engine-jjq6rp9qwxrj39w4-8976.app.github.dev/

@@ -1,18 +1,13 @@
 {
-	"name": "jhm5-ex04",
-	"version": "0.0.0",
-	"private": true,
-	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
-		"start": "wrangler dev",
-		"test": "vitest",
-		"cf-typegen": "wrangler types"
-	},
-	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "^0.8.19",
-		"typescript": "^5.5.2",
-		"vitest": "~3.2.0",
-		"wrangler": "^4.38.0"
-	}
+  "name": "todo-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "build": "esbuild src/worker.ts --bundle --outfile=dist/index.js --format=esm --platform=browser"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.0",
+    "typescript": "^5.0.0"
+  }
 }

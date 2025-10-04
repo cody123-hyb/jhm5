@@ -1,13 +1,15 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "jhm5-ex03",
+	// Cloudflare Workers KV + Worker 入口部署設定 + 靜態資產服務
+	"name": "todo-worker",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-09-20",
-
-	
-	"assets":{
-		"directory": "./public/",
-        "binding":"assets"
-	}
+	"compatibility_date": "2023-09-01",
+	"assets": {
+		"directory": "./public"
+	},
+	"kv_namespaces": [
+		{
+			"binding": "TODOS",
+			"id": "e2bf1690a1f144779e65432c39dd3fb2"
+		}
+	]
 }
-	

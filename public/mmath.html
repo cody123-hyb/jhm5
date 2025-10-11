@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>數學反應挑戰</title>
+    <style>
+        /* 全局樣式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 標題樣式 */
+        header {
+            background-color: #555;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        /* 導航欄樣式 */
+        nav {
+            background-color: #444;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        nav li {
+            margin: 0 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.7rem 1.5rem;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        nav a:hover {
+            background-color: #666;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 主內容區樣式 */
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 300px);
+        }
+        
+        .game-section, .instructions-section, .about-section {
+            display: none;
+            background-color: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .active {
+            display: block;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* 遊戲界面樣式 */
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #e0e0e0;
+            color: #333;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .score, .timer, .progress {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .timer {
+            color: #d32f2f;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #666;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .question-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .question {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background-color: #f5f5f5;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .option {
+            padding: 1.5rem;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option:hover {
+            background-color: #555;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .option.correct {
+            background-color: #4caf50;
+            animation: correctAnswer 0.5s ease forwards;
+        }
+        
+        .option.incorrect {
+            background-color: #f44336;
+            animation: incorrectAnswer 0.5s ease forwards;
+        }
+        
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: #666;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #555;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #388e3c;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #d32f2f;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 遊戲設置樣式 */
+        .settings {
+            background-color: #f5f5f5;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .settings h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+        
+        .settings-row {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .settings-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .settings-row label {
+            display: block;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        
+        .setting-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .setting-option {
+            padding: 0.8rem 1.5rem;
+            background-color: #e0e0e0;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            flex: 1;
+            text-align: center;
+            min-width: 120px;
+            color: #333;
+        }
+        
+        .setting-option:hover {
+            background-color: #d6d6d6;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .setting-option.active {
+            background-color: #666;
+            color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+        
+        /* 遊戲結束樣式 */
+        .game-over {
+            text-align: center;
+            padding: 3rem;
+            background-color: #f5f5f5;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-over h2 {
+            color: #4caf50;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+        
+        .stat-item {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* 說明和關於我們樣式 */
+        .instructions-section h2, .about-section h2 {
+            color: #333;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #666;
+            padding-bottom: 0.5rem;
+            font-size: 2.2rem;
+        }
+        
+        .instructions-section h3, .about-section h3 {
+            color: #333;
+            margin: 1.8rem 0 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .instructions-section ul, .about-section ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .instructions-section li, .about-section li {
+            margin-bottom: 0.8rem;
+            line-height: 1.8;
+        }
+        
+        .developer-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .developer-card {
+            background-color: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .developer-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .developer-card h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+        
+        /* 頁尾樣式 */
+        footer {
+            background-color: #444;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 2rem;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* 動畫效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes correctAnswer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(76, 175, 80, 0.5); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes incorrectAnswer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(244, 67, 54, 0.5); }
+            100% { transform: scale(1); }
+        }
+        
+        .correct-animation {
+            animation: correctAnswer 0.5s ease forwards;
+        }
+        
+        .incorrect-animation {
+            animation: incorrectAnswer 0.5s ease forwards;
+        }
+        
+        @keyframes celebration {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .celebration {
+            animation: celebration 0.5s ease 3;
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 標題區域 -->
+    <header>
+        <div class="container">
+            <h1>數學反應挑戰</h1>
+            <p>測試你的數學技能和反應速度！</p>
+        </div>
+    </header>
+    
+    <!-- 導航欄 -->
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="#" class="nav-link" data-target="game-section">開始遊戲</a></li>
+                <li><a href="#" class="nav-link" data-target="instructions-section">遊戲說明</a></li>
+                <li><a href="#" class="nav-link" data-target="about-section">關於我們</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- 主內容區 -->
+    <main class="container">
+        <!-- 遊戲界面 -->
+        <section id="game-section" class="game-section active">
+            <div class="settings">
+                <h3>遊戲設置</h3>
+                
+                <!-- 運算類型 -->
+                <div class="settings-row">
+                    <label>運算類型：</label>
+                    <div class="setting-options">
+                        <div class="setting-option active" data-value="all">混合運算</div>
+                        <div class="setting-option" data-value="addition">加法</div>
+                        <div class="setting-option" data-value="subtraction">減法</div>
+                        <div class="setting-option" data-value="multiplication">乘法</div>
+                        <div class="setting-option" data-value="division">除法</div>
+                    </div>
+                </div>
+                
+                <!-- 難度等級 -->
+                <div class="settings-row">
+                    <label>難度等級：</label>
+                    <div class="setting-options">
+                        <div class="setting-option active" data-value="easy">簡單</div>
+                        <div class="setting-option" data-value="medium">中等</div>
+                        <div class="setting-option" data-value="hard">困難</div>
+                    </div>
+                </div>
+                
+                <!-- 題目數量 -->
+                <div class="settings-row">
+                    <label>題目數量：</label>
+                    <div class="setting-options">
+                        <div class="setting-option" data-value="5">5題</div>
+                        <div class="setting-option active" data-value="10">10題</div>
+                        <div class="setting-option" data-value="15">15題</div>
+                        <div class="setting-option" data-value="20">20題</div>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <button id="start-game" class="btn btn-primary pulse">開始遊戲</button>
+                </div>
+            </div>
+            
+            <div id="game-area" style="display: none;">
+                <div class="game-info">
+                    <div class="score">分數: <span id="score-value">0</span></div>
+                    <div class="timer">時間: <span id="timer-value">60</span>秒</div>
+                    <div class="progress">
+                        進度: <span id="progress-value">0</span>/<span id="total-questions-value">10</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="question-container">
+                    <div class="question" id="question-text">3 + 5 = ?</div>
+                    <div class="options-container" id="options-container">
+                        <!-- 選項將由JavaScript動態生成 -->
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <button id="end-game" class="btn btn-danger">結束遊戲</button>
+                </div>
+            </div>
+            
+            <div id="game-over" class="game-over" style="display: none;">
+                <h2 class="celebration">恭喜完成挑戰！</h2>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">最終分數</div>
+                        <div class="stat-value" id="final-score">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">答題數量</div>
+                        <div class="stat-value" id="total-questions">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">正確率</div>
+                        <div class="stat-value" id="accuracy">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">平均反應時間</div>
+                        <div class="stat-value" id="avg-reaction-time">0秒</div>
+                    </div>
+                </div>
+                <button id="restart-game" class="btn btn-primary">重新開始</button>
+            </div>
+        </section>
+        
+        <!-- 遊戲說明 -->
+        <section id="instructions-section" class="instructions-section">
+            <h2>遊戲說明</h2>
+            <p>歡迎參加數學反應挑戰！這是一款測試您數學技能和反應速度的遊戲。</p>
+            
+            <h3>遊戲目標</h3>
+            <p>在限定時間內盡可能正確地回答更多數學問題，獲得最高分數。</p>
+            
+            <h3>遊戲規則</h3>
+            <ul>
+                <li>遊戲開始後，系統會隨機生成數學題目</li>
+                <li>每道題目有4個選項，只有一個是正確答案</li>
+                <li>選擇答案後，系統會立即顯示是否正確</li>
+                <li>答對題目可獲得相應分數，答錯不扣分</li>
+                <li>每道題目有時間限制，超時將自動進入下一題</li>
+                <li>當完成所有題目或時間結束時，遊戲結束</li>
+            </ul>
+            
+            <h3>分數計算</h3>
+            <ul>
+                <li>基礎分數：每題10分</li>
+                <li>時間獎勵：回答越快，獲得分數越高</li>
+                <li>難度係數：難度越高，分數倍率越高</li>
+            </ul>
+            
+            <h3>遊戲設置</h3>
+            <p>開始遊戲前，您可以選擇：</p>
+            <ul>
+                <li>運算類型：加法、減法、乘法、除法或混合運算</li>
+                <li>難度等級：簡單、中等或困難</li>
+                <li>題目數量：5、10、15或20題</li>
+            </ul>
+        </section>
+        
+        <!-- 關於我們 -->
+        <section id="about-section" class="about-section">
+            <h2>關於我們</h2>
+            <p>數學反應挑戰是由一群熱衷於教育科技與遊戲化學習的開發者共同創建的項目。</p>
+            
+            <h3>項目目標</h3>
+            <p>我們的目標是通過遊戲化的方式，提升學生的數學計算能力與反應速度，讓數學學習變得更加有趣且有效。</p>
+            
+            <h3>開發團隊</h3>
+            <div class="developer-list">
+                <div class="developer-card">
+                    <h4>Cody</h4>
+                </div>
+                <div class="developer-card">
+                    <h4>Carson</h4>
+                </div>
+                <div class="developer-card">
+                    <h4>Wallace</h4>
+                </div>
+                <div class="developer-card">
+                    <h4>Rexyue</h4>
+                </div>
+            </div>
+            
+            <h3>技術實現</h3>
+            <p>本遊戲採用現代前端技術開發，使用HTML5構建頁面結構，CSS3實現響應式設計與動畫效果，JavaScript處理遊戲邏輯與用戶交互。遊戲可在各種設備上流暢運行，無需安裝任何插件。</p>
+            
+            <h3>聯繫我們</h3>
+            <p>如果您有任何建議或問題，請通過以下方式聯繫我們：</p>
+            <p>電話：999</p>
+        </section>
+    </main>
+    
+    <!-- 頁尾 -->
+    <footer>
+        <div class="container">
+            <p class="copyright">© 2023 數學反應挑戰 版權所有</p>
+            <p>本遊戲僅供教育用途，嚴禁用於商業目的</p>
+        </div>
+    </footer>
+    
+    <!-- 音效元素 -->
+    <audio id="correct-sound" src="https://assets.mixkit.co/active_storage/sfx/286/286-preview.mp3" preload="auto"></audio>
+    <audio id="incorrect-sound" src="https://assets.mixkit.co/active_storage/sfx/128/128-preview.mp3" preload="auto"></audio>
+    <audio id="game-over-sound" src="https://assets.mixkit.co/active_storage/sfx/241/241-preview.mp3" preload="auto"></audio>
+    
+    <script>
+        // 遊戲狀態變量
+        let gameState = {
+            score: 0,
+            currentQuestion: 0,
+            totalQuestions: 10,
+            correctAnswers: 0,
+            totalTime: 0,
+            timer: null,
+            timeLeft: 60,
+            gameActive: false,
+            operationType: 'all',
+            difficulty: 'easy',
+            questionStartTime: 0
+        };
+        
+        // DOM元素
+        const gameSection = document.getElementById('game-section');
+        const instructionsSection = document.getElementById('instructions-section');
+        const aboutSection = document.getElementById('about-section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const startGameBtn = document.getElementById('start-game');
+        const gameArea = document.getElementById('game-area');
+        const endGameBtn = document.getElementById('end-game');
+        const restartGameBtn = document.getElementById('restart-game');
+        const gameOverSection = document.getElementById('game-over');
+        
+        // 遊戲數據顯示元素
+        const scoreValue = document.getElementById('score-value');
+        const timerValue = document.getElementById('timer-value');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const finalScore = document.getElementById('final-score');
+        const totalQuestions = document.getElementById('total-questions');
+        const accuracy = document.getElementById('accuracy');
+        const avgReactionTime = document.getElementById('avg-reaction-time');
+        const progressValue = document.getElementById('progress-value');
+        const totalQuestionsValue = document.getElementById('total-questions-value');
+        const progressFill = document.getElementById('progress-fill');
+        
+        // 設置選項
+        const settingOptions = document.querySelectorAll('.setting-option');
+        
+        // 音效元素
+        const correctSound = document.getElementById('correct-sound');
+        const incorrectSound = document.getElementById('incorrect-sound');
+        const gameOverSound = document.getElementById('game-over-sound');
+        
+        // 導航功能
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = link.getAttribute('data-target');
+                
+                // 隱藏所有部分
+                document.querySelectorAll('main section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // 顯示目標部分
+                document.getElementById(target).classList.add('active');
+            });
+        });
+        
+        // 設置選項功能
+        settingOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // 移除同組其他選項的active類
+                const parent = option.parentElement;
+                parent.querySelectorAll('.setting-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                // 添加active類到當前選項
+                option.classList.add('active');
+            });
+        });
+        
+        // 開始遊戲
+        startGameBtn.addEventListener('click', () => {
+            // 獲取設置
+            const operationOption = document.querySelector('.settings-row:nth-child(1) .active');
+            const difficultyOption = document.querySelector('.settings-row:nth-child(2) .active');
+            const questionCountOption = document.querySelector('.settings-row:nth-child(3) .active');
+            
+            gameState.operationType = operationOption.getAttribute('data-value');
+            gameState.difficulty = difficultyOption.getAttribute('data-value');
+            gameState.totalQuestions = parseInt(questionCountOption.getAttribute('data-value'));
+            gameState.timeLeft = 60;
+            
+            // 重置遊戲狀態
+            resetGameState();
+            
+            // 顯示遊戲區域，隱藏設置
+            document.querySelector('.settings').style.display = 'none';
+            gameArea.style.display = 'block';
+            
+            // 開始遊戲
+            startGame();
+        });
+        
+        // 結束遊戲
+        endGameBtn.addEventListener('click', () => {
+            endGame();
+        });
+        
+        // 重新開始遊戲
+        restartGameBtn.addEventListener('click', () => {
+            // 顯示設置，隱藏遊戲結束和遊戲區域
+            document.querySelector('.settings').style.display = 'block';
+            gameArea.style.display = 'none';
+            gameOverSection.style.display = 'none';
+        });
+        
+        // 重置遊戲狀態
+        function resetGameState() {
+            gameState.score = 0;
+            gameState.currentQuestion = 0;
+            gameState.correctAnswers = 0;
+            gameState.totalTime = 0;
+            gameState.timeLeft = 60;
+            gameState.gameActive = false;
+            
+            // 更新顯示
+            scoreValue.textContent = '0';
+            timerValue.textContent = '60';
+            progressValue.textContent = '0';
+            totalQuestionsValue.textContent = gameState.totalQuestions;
+            progressFill.style.width = '0%';
+        }
+        
+        // 開始遊戲
+        function startGame() {
+            gameState.gameActive = true;
+            gameState.currentQuestion = 0;
+            
+            // 開始計時器
+            startTimer();
+            
+            // 生成第一題
+            generateQuestion();
+        }
+        
+        // 開始計時器
+        function startTimer() {
+            clearInterval(gameState.timer);
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                timerValue.textContent = gameState.timeLeft;
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+        
+        // 生成題目
+        function generateQuestion() {
+            if (gameState.currentQuestion >= gameState.totalQuestions) {
+                endGame();
+                return;
+            }
+            
+            gameState.currentQuestion++;
+            gameState.questionStartTime = Date.now();
+            
+            // 更新進度條
+            progressValue.textContent = gameState.currentQuestion;
+            progressFill.style.width = `${(gameState.currentQuestion / gameState.totalQuestions) * 100}%`;
+            
+            // 根據設置生成題目
+            let num1, num2, operation, answer;
+            let options = [];
+            
+            // 根據難度確定數字範圍
+            let maxNum = 10;
+            if (gameState.difficulty === 'medium') maxNum = 20;
+            if (gameState.difficulty === 'hard') maxNum = 50;
+            
+            // 確定運算類型
+            let operations = [];
+            if (gameState.operationType === 'all') {
+                operations = ['+', '-', '*', '/'];
+            } else if (gameState.operationType === 'addition') {
+                operations = ['+'];
+            } else if (gameState.operationType === 'subtraction') {
+                operations = ['-'];
+            } else if (gameState.operationType === 'multiplication') {
+                operations = ['*'];
+            } else if (gameState.operationType === 'division') {
+                operations = ['/'];
+            }
+            
+            // 隨機選擇運算
+            operation = operations[Math.floor(Math.random() * operations.length)];
+            
+            // 生成數字和答案
+            if (operation === '+') {
+                num1 = Math.floor(Math.random() * maxNum) + 1;
+                num2 = Math.floor(Math.random() * maxNum) + 1;
+                answer = num1 + num2;
+            } else if (operation === '-') {
+                num1 = Math.floor(Math.random() * maxNum) + 1;
+                num2 = Math.floor(Math.random() * num1) + 1;
+                answer = num1 - num2;
+            } else if (operation === '*') {
+                num1 = Math.floor(Math.random() * (maxNum/2)) + 1;
+                num2 = Math.floor(Math.random() * (maxNum/2)) + 1;
+                answer = num1 * num2;
+            } else if (operation === '/') {
+                // 確保除法結果是整數
+                num2 = Math.floor(Math.random() * (maxNum/2)) + 1;
+                answer = Math.floor(Math.random() * (maxNum/2)) + 1;
+                num1 = num2 * answer;
+            }
+            
+            // 生成選項
+            options = [answer];
+            while (options.length < 4) {
+                let randomOption;
+                if (operation === '/') {
+                    randomOption = Math.floor(Math.random() * (maxNum/2)) + 1;
+                } else {
+                    randomOption = answer + Math.floor(Math.random() * 10) - 5;
+                }
+                
+                // 確保選項不重複且為正數
+                if (randomOption !== answer && randomOption > 0 && !options.includes(randomOption)) {
+                    options.push(randomOption);
+                }
+            }
+            
+            // 打亂選項順序
+            options = shuffleArray(options);
+            
+            // 更新題目顯示
+            questionText.textContent = `${num1} ${operation} ${num2} = ?`;
+            
+            // 更新選項
+            optionsContainer.innerHTML = '';
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = option;
+                button.addEventListener('click', () => checkAnswer(option, answer));
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        // 檢查答案
+        function checkAnswer(selected, correct) {
+            if (!gameState.gameActive) return;
+            
+            // 計算反應時間
+            const reactionTime = (Date.now() - gameState.questionStartTime) / 1000;
+            gameState.totalTime += reactionTime;
+            
+            // 禁用所有選項
+            document.querySelectorAll('.option').forEach(option => {
+                option.disabled = true;
+            });
+            
+            // 標記正確和錯誤答案
+            document.querySelectorAll('.option').forEach(option => {
+                if (parseInt(option.textContent) === correct) {
+                    option.classList.add('correct');
+                    option.classList.add('correct-animation');
+                } else if (option.textContent === selected.toString()) {
+                    option.classList.add('incorrect');
+                    option.classList.add('incorrect-animation');
+                }
+            });
+            
+            // 檢查答案是否正確
+            if (selected === correct) {
+                // 計算分數 (基礎分數 + 時間獎勵)
+                let baseScore = 10;
+                let timeBonus = Math.max(0, 5 - Math.floor(reactionTime));
+                let difficultyMultiplier = 1;
+                if (gameState.difficulty === 'medium') difficultyMultiplier = 1.5;
+                if (gameState.difficulty === 'hard') difficultyMultiplier = 2;
+                
+                let questionScore = Math.floor((baseScore + timeBonus) * difficultyMultiplier);
+                gameState.score += questionScore;
+                gameState.correctAnswers++;
+                
+                // 更新分數顯示
+                scoreValue.textContent = gameState.score;
+                
+                // 播放正確音效
+                correctSound.play();
+            } else {
+                // 播放錯誤音效
+                incorrectSound.play();
+            }
+            
+            // 0.5秒後自動進入下一題
+            setTimeout(() => {
+                if (gameState.gameActive) {
+                    generateQuestion();
+                }
+            }, 500);
+        }
+        
+        // 結束遊戲
+        function endGame() {
+            gameState.gameActive = false;
+            clearInterval(gameState.timer);
+            
+            // 隱藏遊戲區域，顯示遊戲結束
+            gameArea.style.display = 'none';
+            gameOverSection.style.display = 'block';
+            
+            // 計算統計數據 - 使用實際完成的題目數量計算正確率
+            const completedQuestions = gameState.currentQuestion;
+            const accuracyRate = completedQuestions > 0 ? 
+                Math.round((gameState.correctAnswers / completedQuestions) * 100) : 0;
+            const avgTime = completedQuestions > 0 ? 
+                gameState.totalTime / completedQuestions : 0;
+            
+            // 更新遊戲結束顯示
+            finalScore.textContent = gameState.score;
+            totalQuestions.textContent = completedQuestions;
+            accuracy.textContent = `${accuracyRate}%`;
+            avgReactionTime.textContent = `${avgTime.toFixed(2)}秒`;
+            
+            // 播放遊戲結束音效
+            gameOverSound.play();
+            
+            // 添加慶祝動畫
+            document.querySelector('.game-over h2').classList.add('celebration');
+        }
+        
+        // 輔助函數：打亂數組
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+    </script>
+</body>
+</html>

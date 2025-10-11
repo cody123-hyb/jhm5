@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathMaster - 數學思維挑戰</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* 標題樣式 */
+        .math-header {
+            background-color: #fff;
+            color: #2c3e50;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .math-header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+        
+        /* 卡片樣式 */
+        .game-card {
+            background: white;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        
+        .game-card h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        /* 模式選擇網格 */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .mode-card {
+            background: white;
+            border-radius: 8px;
+            padding: 18px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .mode-card:hover {
+            border-color: #3498db;
+        }
+        
+        .mode-name {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 1rem;
+            color: #2c3e50;
+        }
+        
+        .mode-desc {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+        
+        /* 選項按鈕 */
+        .option-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .option-btn {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+        
+        .option-btn.active {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        
+        /* 遊戲統計 */
+        .game-stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        /* 問題容器 */
+        .question-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .question-text {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        /* 答案網格 */
+        .answer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .answer-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .answer-btn:hover {
+            border-color: #3498db;
+        }
+        
+        .answer-btn.correct {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: white;
+        }
+        
+        .answer-btn.incorrect {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: white;
+        }
+        
+        /* 遊戲控制按鈕 */
+        .game-controls {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        
+        .primary-btn {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background: #7f8c8d;
+            color: white;
+        }
+        
+        .warning-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        /* 結果容器 */
+        .result-container {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .final-score {
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 15px 0;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        /* 反饋消息 */
+        .feedback-message {
+            min-height: 30px;
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        .correct-feedback {
+            color: #27ae60;
+        }
+        
+        .incorrect-feedback {
+            color: #e74c3c;
+        }
+        
+        .daily-info {
+            background-color: #e8f4fd;
+            border-left: 3px solid #3498db;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+        
+        .daily-badge {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 主菜單 -->
+        <div id="mainMenu" class="main-content">
+            <div class="math-header">
+                <h1>數學思維挑戰</h1>
+                <p class="subtitle">提升你的數學能力與反應速度</p>
+            </div>
+
+            <div class="game-card">
+                <h2>挑戰模式</h2>
+                <div class="mode-grid">
+                    <div class="mode-card" onclick="startGame('timed')">
+                        <span class="mode-name">限時挑戰</span>
+                        <span class="mode-desc">60秒答題</span>
+                    </div>
+                    <div class="mode-card" onclick="startGame('survival')">
+                        <span class="mode-name">生存模式</span>
+                        <span class="mode-desc">一次錯誤結束</span>
+                    </div>
+                    <div class="mode-card" onclick="startGame('practice')">
+                        <span class="mode-name">練習模式</span>
+                        <span class="mode-desc">無壓力學習</span>
+                    </div>
+                    <div class="mode-card" onclick="startGame('daily')">
+                        <span class="mode-name">每日挑戰</span>
+                        <span class="mode-desc">今日特別題目</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <h2>難度設置</h2>
+                <div class="option-row">
+                    <div class="option-btn active" data-difficulty="easy">初級</div>
+                    <div class="option-btn" data-difficulty="medium">中級</div>
+                    <div class="option-btn" data-difficulty="hard">高級</div>
+                    <div class="option-btn" data-difficulty="extreme">極限</div>
+                </div>
+            </div>
+
+            <div class="game-card">
+                <h2>運算類型</h2>
+                <div class="option-row">
+                    <div class="option-btn active" data-operation="all">混合運算</div>
+                    <div class="option-btn" data-operation="add">加法</div>
+                    <div class="option-btn" data-operation="subtract">減法</div>
+                    <div class="option-btn" data-operation="multiply">乘法</div>
+                    <div class="option-btn" data-operation="divide">除法</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 遊戲界面 -->
+        <div id="gameScreen" class="main-content hidden">
+            <div class="math-header">
+                <h1 id="gameTitle">挑戰進行中</h1>
+            </div>
+
+            <div id="dailyInfo" class="daily-info hidden">
+                今日挑戰：特殊題目組合 <span class="daily-badge">額外加分</span>
+            </div>
+
+            <div class="game-stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">當前得分</div>
+                    <div id="currentScore" class="stat-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">正確率</div>
+                    <div id="accuracyRate" class="stat-value">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">連續正確</div>
+                    <div id="comboCount" class="stat-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">剩餘時間</div>
+                    <div id="timeLeft" class="stat-value">60</div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div id="mathQuestion" class="question-text">準備題目中...</div>
+                <div id="answerFeedback" class="feedback-message"></div>
+            </div>
+
+            <div id="answerChoices" class="answer-grid"></div>
+
+            <div class="game-controls">
+                <button class="btn secondary-btn" onclick="pauseGame()">暫停</button>
+                <button class="btn warning-btn" onclick="endGame()">結束挑戰</button>
+            </div>
+        </div>
+
+        <!-- 結果界面 -->
+        <div id="resultScreen" class="main-content hidden">
+            <div class="math-header">
+                <h1>挑戰完成</h1>
+            </div>
+
+            <div class="result-container">
+                <div class="result-label">最終成績</div>
+                <div id="totalScore" class="final-score">0</div>
+
+                <div class="result-grid">
+                    <div class="result-item">
+                        <span class="label">答題總數</span>
+                        <span id="questionsAnswered" class="value">0</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">正確率</span>
+                        <span id="finalAccuracy" class="value">0%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="label">最高連擊</span>
+                        <span id="maxCombo" class="value">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button class="btn primary-btn" onclick="saveResult()">保存成績</button>
+                <button class="btn secondary-btn" onclick="playAgain()">再試一次</button>
+                <button class="btn" onclick="returnToMenu()">返回主菜單</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 遊戲狀態
+        const gameState = {
+            currentMode: 'timed',
+            difficulty: 'easy',
+            operation: 'all',
+            score: 0,
+            correctAnswers: 0,
+            totalQuestions: 0,
+            combo: 0,
+            maxCombo: 0,
+            timeLeft: 60,
+            gameTimer: null,
+            isPaused: false,
+            currentQuestion: null,
+            startTime: null
+        };
+
+        // 難度設置
+        const difficultySettings = {
+            easy: { min: 1, max: 10, operations: ['add', 'subtract'] },
+            medium: { min: 1, max: 20, operations: ['add', 'subtract', 'multiply'] },
+            hard: { min: 1, max: 50, operations: ['add', 'subtract', 'multiply', 'divide'] },
+            extreme: { min: 10, max: 100, operations: ['add', 'subtract', 'multiply', 'divide'] }
+        };
+
+        // 每日挑戰題目類型
+        const dailyChallengeTypes = [
+            { type: 'double', name: '雙倍運算', desc: '連續兩次相同運算' },
+            { type: 'mixed', name: '混合難題', desc: '多步驟運算題' },
+            { type: 'pattern', name: '規律題', desc: '尋找數字規律' },
+            { type: 'quick', name: '速算題', desc: '快速計算題目' }
+        ];
+
+        // 初始化函數
+        function initializeGame() {
+            // 設置難度選項
+            const difficultyButtons = document.querySelectorAll('[data-difficulty]');
+            difficultyButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    difficultyButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    gameState.difficulty = this.getAttribute('data-difficulty');
+                });
+            });
+            
+            // 設置運算類型選項
+            const operationButtons = document.querySelectorAll('[data-operation]');
+            operationButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    operationButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    gameState.operation = this.getAttribute('data-operation');
+                });
+            });
+        }
+        
+        // 生成數學題目
+        function generateQuestion() {
+            const settings = difficultySettings[gameState.difficulty];
+            let operationType = gameState.operation;
+            
+            // 每日挑戰使用特殊題目
+            if (gameState.currentMode === 'daily') {
+                return generateDailyQuestion();
+            } else if (operationType === 'all') {
+                const operations = settings.operations;
+                operationType = operations[Math.floor(Math.random() * operations.length)];
+            }
+            
+            return generateStandardQuestion(operationType, settings);
+        }
+        
+        // 生成標準題目
+        function generateStandardQuestion(operationType, settings) {
+            let num1, num2, question, answer;
+            
+            switch (operationType) {
+                case 'add':
+                    num1 = Math.floor(Math.random() * (settings.max - settings.min + 1)) + settings.min;
+                    num2 = Math.floor(Math.random() * (settings.max - settings.min + 1)) + settings.min;
+                    question = `${num1} + ${num2}`;
+                    answer = num1 + num2;
+                    break;
+                    
+                case 'subtract':
+                    num1 = Math.floor(Math.random() * (settings.max - settings.min + 1)) + settings.min;
+                    num2 = Math.floor(Math.random() * (settings.max - settings.min + 1)) + settings.min;
+                    // 確保結果為正數
+                    if (num1 < num2) [num1, num2] = [num2, num1];
+                    question = `${num1} - ${num2}`;
+                    answer = num1 - num2;
+                    break;
+                    
+                case 'multiply':
+                    num1 = Math.floor(Math.random() * (settings.max/5 - settings.min + 1)) + settings.min;
+                    num2 = Math.floor(Math.random() * (settings.max/5 - settings.min + 1)) + settings.min;
+                    question = `${num1} × ${num2}`;
+                    answer = num1 * num2;
+                    break;
+                    
+                case 'divide':
+                    // 確保除法結果是整數
+                    num2 = Math.floor(Math.random() * (settings.max/5 - 1 + 1)) + 1;
+                    answer = Math.floor(Math.random() * (settings.max/5 - 1 + 1)) + 1;
+                    num1 = num2 * answer;
+                    question = `${num1} ÷ ${num2}`;
+                    break;
+            }
+            
+            gameState.currentQuestion = { question, answer };
+            gameState.startTime = Date.now();
+            
+            // 顯示題目
+            document.getElementById('mathQuestion').textContent = question;
+            
+            // 生成答案選項
+            generateAnswerOptions(answer);
+        }
+        
+        // 生成每日挑戰題目
+        function generateDailyQuestion() {
+            const date = new Date();
+            const dayOfMonth = date.getDate();
+            const challengeType = dailyChallengeTypes[dayOfMonth % dailyChallengeTypes.length];
+            
+            let question, answer;
+            
+            switch(challengeType.type) {
+                case 'double':
+                    // 雙倍運算題目
+                    const num1 = Math.floor(Math.random() * 20) + 1;
+                    const num2 = Math.floor(Math.random() * 20) + 1;
+                    const num3 = Math.floor(Math.random() * 20) + 1;
+                    question = `${num1} + ${num2} + ${num3}`;
+                    answer = num1 + num2 + num3;
+                    break;
+                    
+                case 'mixed':
+                    // 混合運算題目
+                    const a = Math.floor(Math.random() * 15) + 1;
+                    const b = Math.floor(Math.random() * 10) + 1;
+                    const c = Math.floor(Math.random() * 10) + 1;
+                    question = `(${a} + ${b}) × ${c}`;
+                    answer = (a + b) * c;
+                    break;
+                    
+                case 'pattern':
+                    // 規律題目
+                    const base = Math.floor(Math.random() * 10) + 1;
+                    const multiplier = Math.floor(Math.random() * 5) + 2;
+                    question = `${base}, ${base*multiplier}, ${base*multiplier*multiplier}, ?`;
+                    answer = base * multiplier * multiplier * multiplier;
+                    break;
+                    
+                case 'quick':
+                    // 速算題目
+                    const x = Math.floor(Math.random() * 90) + 10;
+                    const y = Math.floor(Math.random() * 10) + 1;
+                    question = `${x} + ${y}`;
+                    answer = x + y;
+                    break;
+            }
+            
+            gameState.currentQuestion = { question, answer };
+            gameState.startTime = Date.now();
+            
+            // 更新每日挑戰信息
+            document.getElementById('dailyInfo').innerHTML = 
+                `今日挑戰：${challengeType.name} <span class="daily-badge">${challengeType.desc}</span>`;
+            
+            // 顯示題目
+            document.getElementById('mathQuestion').textContent = question;
+            
+            // 生成答案選項
+            generateAnswerOptions(answer);
+        }
+        
+        // 生成答案選項
+        function generateAnswerOptions(correctAnswer) {
+            const answerGrid = document.getElementById('answerChoices');
+            answerGrid.innerHTML = '';
+            
+            // 創建包含正確答案和錯誤答案的選項數組
+            const options = [correctAnswer];
+            
+            // 生成3個錯誤答案
+            while (options.length < 4) {
+                let wrongAnswer;
+                const variation = Math.floor(Math.random() * 5) + 1;
+                
+                // 隨機決定錯誤答案是在正確答案基礎上加減
+                if (Math.random() > 0.5) {
+                    wrongAnswer = correctAnswer + variation;
+                } else {
+                    wrongAnswer = Math.max(1, correctAnswer - variation);
+                }
+                
+                // 確保錯誤答案不重複且不等於正確答案
+                if (!options.includes(wrongAnswer)) {
+                    options.push(wrongAnswer);
+                }
+            }
+            
+            // 隨機排序選項
+            shuffleArray(options);
+            
+            // 創建選項按鈕
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'answer-btn';
+                button.textContent = option;
+                button.onclick = () => checkAnswer(option, correctAnswer);
+                answerGrid.appendChild(button);
+            });
+        }
+        
+        // 檢查答案
+        function checkAnswer(selectedAnswer, correctAnswer) {
+            const isCorrect = selectedAnswer === correctAnswer;
+            const feedback = document.getElementById('answerFeedback');
+            const answerButtons = document.querySelectorAll('.answer-btn');
+            
+            // 顯示反饋
+            if (isCorrect) {
+                feedback.textContent = '✓ 正確！';
+                feedback.className = 'feedback-message correct-feedback';
+                
+                // 更新分數和統計
+                let points = 10 + gameState.combo;
+                
+                // 每日挑戰額外加分
+                if (gameState.currentMode === 'daily') {
+                    points += 5;
+                }
+                
+                gameState.score += points;
+                gameState.correctAnswers++;
+                gameState.combo++;
+                gameState.maxCombo = Math.max(gameState.maxCombo, gameState.combo);
+                
+                // 高亮正確答案
+                answerButtons.forEach(btn => {
+                    if (parseInt(btn.textContent) === correctAnswer) {
+                        btn.classList.add('correct');
+                    }
+                });
+            } else {
+                feedback.textContent = '✗ 錯誤！正確答案是: ' + correctAnswer;
+                feedback.className = 'feedback-message incorrect-feedback';
+                gameState.combo = 0;
+                
+                // 高亮正確答案和錯誤答案
+                answerButtons.forEach(btn => {
+                    const btnValue = parseInt(btn.textContent);
+                    if (btnValue === correctAnswer) {
+                        btn.classList.add('correct');
+                    } else if (btnValue === selectedAnswer) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+            }
+            
+            gameState.totalQuestions++;
+            updateStats();
+            
+            // 短暫延遲後生成新題目
+            setTimeout(() => {
+                if (!gameState.isPaused && gameState.timeLeft > 0) {
+                    generateQuestion();
+                    feedback.textContent = '';
+                }
+            }, 1500);
+        }
+        
+        // 更新遊戲統計信息
+        function updateStats() {
+            document.getElementById('currentScore').textContent = gameState.score;
+            document.getElementById('comboCount').textContent = gameState.combo;
+            
+            const accuracy = gameState.totalQuestions > 0 
+                ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) 
+                : 0;
+            document.getElementById('accuracyRate').textContent = accuracy + '%';
+        }
+        
+        // 遊戲計時器
+        function startTimer() {
+            gameState.gameTimer = setInterval(() => {
+                if (!gameState.isPaused) {
+                    gameState.timeLeft--;
+                    document.getElementById('timeLeft').textContent = gameState.timeLeft;
+                    
+                    if (gameState.timeLeft <= 0) {
+                        endGame();
+                    }
+                }
+            }, 1000);
+        }
+        
+        // 遊戲功能函數
+        function startGame(mode) {
+            gameState.currentMode = mode;
+            
+            // 重置遊戲狀態
+            gameState.score = 0;
+            gameState.correctAnswers = 0;
+            gameState.totalQuestions = 0;
+            gameState.combo = 0;
+            gameState.maxCombo = 0;
+            gameState.isPaused = false;
+            
+            // 設置時間限制
+            if (mode === 'timed') {
+                gameState.timeLeft = 60;
+                document.getElementById('gameTitle').textContent = '限時挑戰';
+            } else if (mode === 'survival') {
+                gameState.timeLeft = 999; // 生存模式時間顯示為無限
+                document.getElementById('gameTitle').textContent = '生存模式';
+            } else if (mode === 'daily') {
+                gameState.timeLeft = 90; // 每日挑戰90秒
+                document.getElementById('gameTitle').textContent = '每日挑戰';
+            } else {
+                gameState.timeLeft = 0; // 練習模式不顯示時間
+                document.getElementById('gameTitle').textContent = '練習模式';
+            }
+            
+            document.getElementById('mainMenu').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            
+            // 顯示每日挑戰信息
+            if (mode === 'daily') {
+                document.getElementById('dailyInfo').classList.remove('hidden');
+            } else {
+                document.getElementById('dailyInfo').classList.add('hidden');
+            }
+            
+            updateStats();
+            document.getElementById('timeLeft').textContent = gameState.timeLeft;
+            
+            // 開始計時器（如果不是練習模式）
+            if (mode !== 'practice') {
+                startTimer();
+            }
+            
+            // 生成第一個題目
+            generateQuestion();
+        }
+        
+        function pauseGame() {
+            gameState.isPaused = !gameState.isPaused;
+            const pauseBtn = document.querySelector('.secondary-btn');
+            pauseBtn.textContent = gameState.isPaused ? '繼續' : '暫停';
+        }
+        
+        function endGame() {
+            clearInterval(gameState.gameTimer);
+            
+            // 更新結果界面
+            document.getElementById('totalScore').textContent = gameState.score;
+            document.getElementById('questionsAnswered').textContent = gameState.totalQuestions;
+            
+            const accuracy = gameState.totalQuestions > 0 
+                ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) 
+                : 0;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('maxCombo').textContent = gameState.maxCombo;
+            
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+        }
+        
+        function playAgain() {
+            document.getElementById('resultScreen').classList.add('hidden');
+            startGame(gameState.currentMode);
+        }
+        
+        function returnToMenu() {
+            clearInterval(gameState.gameTimer);
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('mainMenu').classList.remove('hidden');
+        }
+        
+        function saveResult() {
+            // 簡單的本地存儲實現
+            const results = JSON.parse(localStorage.getItem('mathGameResults') || '[]');
+            results.push({
+                mode: gameState.currentMode,
+                score: gameState.score,
+                accuracy: Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100),
+                date: new Date().toLocaleDateString()
+            });
+            
+            // 只保留最近10條記錄
+            if (results.length > 10) results.shift();
+            
+            localStorage.setItem('mathGameResults', JSON.stringify(results));
+            alert('成績已保存！');
+        }
+        
+        // 工具函數
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        
+        // 頁面加載完成後初始化
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>

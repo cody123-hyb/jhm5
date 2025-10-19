@@ -1,10 +1,12 @@
 {
-  "name": "todo-worker",
+  "name": "jhm5",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "build": "esbuild src/worker.ts --bundle --outfile=dist/index.js --format=esm --platform=browser"
+    "build": "esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm",
+    "dev": "wrangler dev",
+    "deploy": "wrangler publish"
   },
   "devDependencies": {
     "esbuild": "^0.19.0",

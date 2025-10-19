@@ -1,6 +1,5 @@
 {
-	// Cloudflare Workers KV + Worker 入口部署設定 + 靜態資產服務
-	"name": "todo-worker",
+	"name": "jhm5",
 	"main": "src/index.ts",
 	"compatibility_date": "2023-09-01",
 	"assets": {
@@ -8,7 +7,7 @@
 	},
 	"kv_namespaces": [
 		{
-			"binding": "TODOS",
+			"binding": "JHM5_TODOS",
 			"id": "e2bf1690a1f144779e65432c39dd3fb2"
 		}
 	]

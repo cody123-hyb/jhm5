@@ -1,153 +1,609 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>ToDo App (Cloudflare KV)</title>
-	<style>
-		body { font-family: sans-serif; background: #f7f7f7; margin: 0; padding: 2em; }
-		.todo-app { max-width: 400px; margin: auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ccc; padding: 2em; }
-		h2 { text-align: center; }
-		ul { list-style: none; padding: 0; }
-		li { display: flex; align-items: center; justify-content: space-between; padding: 0.5em 0; border-bottom: 1px solid #eee; }
-		li:last-child { border-bottom: none; }
-		button { background: #ff5252; color: #fff; border: none; border-radius: 4px; padding: 0.3em 0.7em; cursor: pointer; }
-		button:hover { background: #ff1744; }
-		input[type="text"] { width: 70%; padding: 0.5em; border: 1px solid #ccc; border-radius: 4px; }
-		.add-btn { background: #2196f3; margin-left: 1em; }
-		.add-btn:hover { background: #1976d2; }
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* 全局變量定義 */
+        :root {
+            --primary: #7c4dff; /* 主色調 - 紫色 */
+            --primary-light: #b388ff; /* 淺紫色 */
+            --primary-dark: #651fff; /* 深紫色 */
+            --secondary: #ff4081; /* 次要色 - 粉色 */
+            --success: #00c853; /* 成功色 - 綠色 */
+            --danger: #ff1744; /* 危險色 - 紅色 */
+            --light: #f5f5f5; /* 淺色背景 */
+            --dark: #212121; /* 深色文字 */
+            --gray: #9e9e9e; /* 灰色 */
+            --border-radius: 16px; /* 圓角大小 */
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* 陰影效果 */
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* 過渡動畫 */
+        }
+
+        /* 基礎樣式設置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: var(--dark);
+        }
+
+        /* 主容器樣式 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        /* 標題樣式 */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background: linear-gradient(90deg, var(--primary-light), var(--secondary));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        /* 任務列表容器 */
+        .task-container {
+            padding: 30px;
+        }
+
+        /* 任務列表樣式 */
+        .task-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        /* 單個任務項目樣式 */
+        .task-item {
+            background: white;
+            margin-bottom: 15px;
+            padding: 18px 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            animation: fadeIn 0.4s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+
+        /* 淡入動畫 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 任務項目懸停效果 */
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 已完成任務樣式 */
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: var(--gray);
+        }
+
+        /* 任務勾選框樣式 */
+        .task-checkbox {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        /* 任務文字樣式 */
+        .task-text {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        /* 任務編輯輸入框 */
+        .task-edit-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        /* 操作按鈕容器 */
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+        }
+
+        /* 操作按鈕基礎樣式 */
+        .task-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 5px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* 按鈕懸停效果 */
+        .task-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 按鈕圖標樣式 */
+        .btn-icon {
+            width: 18px;
+            height: 18px;
+            transition: var(--transition);
+        }
+
+        /* 編輯按鈕樣式 */
+        .edit-btn {
+            background: rgba(124, 77, 255, 0.1);
+        }
+
+        .edit-btn:hover {
+            background: rgba(124, 77, 255, 0.2);
+        }
+
+        .edit-btn .btn-icon {
+            stroke: var(--primary);
+        }
+
+        /* 刪除按鈕樣式 */
+        .delete-btn {
+            background: rgba(255, 23, 68, 0.1);
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 23, 68, 0.2);
+        }
+
+        .delete-btn .btn-icon {
+            stroke: var(--danger);
+        }
+
+        /* 添加任務區域 */
+        .add-task {
+            display: flex;
+            margin-top: 20px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 任務輸入框 */
+        .task-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+            background: var(--light);
+            transition: var(--transition);
+        }
+
+        .task-input:focus {
+            background: white;
+        }
+
+        /* 添加按鈕 */
+        .add-btn {
+            padding: 0 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .add-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* 空狀態提示 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        /* 響應式設計 - 移動設備 */
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            header {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .task-container {
+                padding: 20px;
+            }
+            
+            .task-item {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-	<div class="todo-app">
-		<h2>待辦事項 (Cloudflare KV)</h2>
-		<form id="todo-form">
-			<input type="text" id="todo-input" placeholder="輸入待辦事項..." required />
-			<button type="submit" class="add-btn">新增</button>
-		</form>
-		<ul id="todo-list"></ul>
-		<div id="empty-state" style="text-align:center;color:#aaa;margin-top:1em;display:none;">暫無任務，添加一個吧</div>
-	</div>
-	<script>
-		const API_URL = '/api/todos';
-
-		async function fetchTodos() {
-			const res = await fetch(API_URL);
-			if (!res.ok) return [];
-			return await res.json();
-		}
-
-		async function addTodo(text) {
-			const res = await fetch(API_URL, {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ text })
-			});
-			return res.ok;
-		}
-
-		async function updateTodo(id, data) {
-			const res = await fetch(`${API_URL}/${id}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(data)
-			});
-			return res.ok;
-		}
-
-		async function deleteTodo(id) {
-			const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-			return res.ok;
-		}
-
-		function renderTodos(todos) {
-			const list = document.getElementById('todo-list');
-			const empty = document.getElementById('empty-state');
-			list.innerHTML = '';
-			if (!todos.length) {
-				empty.style.display = '';
-				return;
-			} else {
-				empty.style.display = 'none';
-			}
-			todos.forEach(todo => {
-				const li = document.createElement('li');
-				// 完成狀態
-				const checkbox = document.createElement('input');
-				checkbox.type = 'checkbox';
-				checkbox.checked = !!todo.completed;
-				checkbox.style.marginRight = '1em';
-				checkbox.onchange = async function() {
-					await updateTodo(todo.id, { ...todo, completed: checkbox.checked });
-					loadTodos();
-				};
-				// 任務文字
-				const span = document.createElement('span');
-				span.textContent = todo.text;
-				span.style.flex = '1';
-				if (todo.completed) span.style.textDecoration = 'line-through';
-				// 編輯
-				const editBtn = document.createElement('button');
-				editBtn.textContent = '編輯';
-				editBtn.style.background = '#ffd600';
-				editBtn.style.color = '#333';
-				editBtn.style.marginRight = '0.5em';
-				editBtn.onclick = function() {
-					editTodo(li, todo);
-				};
-				// 刪除
-				const delBtn = document.createElement('button');
-				delBtn.textContent = '刪除';
-				delBtn.onclick = async function() {
-					await deleteTodo(todo.id);
-					loadTodos();
-				};
-				li.appendChild(checkbox);
-				li.appendChild(span);
-				li.appendChild(editBtn);
-				li.appendChild(delBtn);
-				list.appendChild(li);
-			});
-		}
-
-		function editTodo(li, todo) {
-			li.innerHTML = '';
-			const input = document.createElement('input');
-			input.type = 'text';
-			input.value = todo.text;
-			input.style.flex = '1';
-			const saveBtn = document.createElement('button');
-			saveBtn.textContent = '儲存';
-			saveBtn.style.background = '#2196f3';
-			saveBtn.onclick = async function() {
-				await updateTodo(todo.id, { ...todo, text: input.value });
-				loadTodos();
-			};
-			const cancelBtn = document.createElement('button');
-			cancelBtn.textContent = '取消';
-			cancelBtn.onclick = function() { loadTodos(); };
-			li.appendChild(input);
-			li.appendChild(saveBtn);
-			li.appendChild(cancelBtn);
-		}
-
-		async function loadTodos() {
-			const todos = await fetchTodos();
-			renderTodos(todos);
-		}
-
-		document.getElementById('todo-form').addEventListener('submit', async (e) => {
-			e.preventDefault();
-			const input = document.getElementById('todo-input');
-			const text = input.value.trim();
-			if (text) {
-				await addTodo(text);
-				input.value = '';
-				loadTodos();
-			}
-		});
-
-		loadTodos();
-	</script>
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 標題區域 -->
+        <header>
+            <h1>To-Do List</h1>
+        </header>
+        
+        <!-- 任務列表區域 -->
+        <div class="task-container">
+            <!-- 任務列表 -->
+            <ul class="task-list" id="tasks">
+                <div class="empty-state">暫無任務，添加一個吧</div>
+            </ul>
+            
+            <!-- 添加任務表單 -->
+            <div class="add-task">
+                <input type="text" class="task-input" placeholder="添加新任務..." id="task-input">
+                <button class="add-btn" onclick="addTask()">添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 編輯按鈕SVG圖標 -->
+    <svg style="display: none;">
+        <symbol id="edit-icon" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" 
+                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
+        </symbol>
+        
+        <!-- 刪除按鈕SVG圖標 -->
+        <symbol id="delete-icon" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" 
+                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+        </symbol>
+    </svg>
+    
+    <script>
+        // 當前正在編輯的任務索引
+        let editingIndex = -1;
+        
+        /**
+         * 添加新任務或更新現有任務
+         */
+        function addTask() {
+            // 獲取輸入框元素和輸入值
+            const input = document.getElementById('task-input');
+            const taskText = input.value.trim();
+            
+            // 如果輸入不為空
+            if (taskText) {
+                const taskList = document.getElementById('tasks');
+                
+                // 移除空狀態提示（如果存在）
+                const emptyState = taskList.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+                
+                // 如果是編輯模式
+                if (editingIndex !== -1) {
+                    // 更新現有任務
+                    const taskItems = taskList.querySelectorAll('.task-item');
+                    if (taskItems[editingIndex]) {
+                        const taskTextSpan = taskItems[editingIndex].querySelector('.task-text');
+                        taskTextSpan.textContent = taskText;
+                    }
+                    editingIndex = -1; // 重置編輯索引
+                } else {
+                    // 創建新任務元素
+                    const taskItem = document.createElement('li');
+                    taskItem.className = 'task-item';
+                    
+                    // 創建勾選框
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'task-checkbox';
+                    checkbox.onchange = function() {
+                        // 切換完成狀態
+                        taskTextSpan.classList.toggle('completed');
+                        saveTasks();
+                    };
+                    
+                    // 創建任務文字
+                    const taskTextSpan = document.createElement('span');
+                    taskTextSpan.className = 'task-text';
+                    taskTextSpan.textContent = taskText;
+                    
+                    // 創建操作按鈕容器
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'task-actions';
+                    
+                    // 創建編輯按鈕
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'task-btn edit-btn';
+                    editBtn.title = '編輯';
+                    editBtn.onclick = function() {
+                        // 設置編輯模式
+                        editTask(taskItem, taskTextSpan);
+                    };
+                    
+                    // 添加編輯圖標
+                    const editIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    editIcon.innerHTML = '<use xlink:href="#edit-icon"></use>';
+                    editIcon.classList.add('btn-icon');
+                    editBtn.appendChild(editIcon);
+                    
+                    // 創建刪除按鈕
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'task-btn delete-btn';
+                    deleteBtn.title = '刪除';
+                    deleteBtn.onclick = function() {
+                        // 刪除任務
+                        taskItem.remove();
+                        // 如果沒有任務了，顯示空狀態
+                        if (taskList.children.length === 0) {
+                            showEmptyState();
+                        }
+                        saveTasks();
+                    };
+                    
+                    // 添加刪除圖標
+                    const deleteIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    deleteIcon.innerHTML = '<use xlink:href="#delete-icon"></use>';
+                    deleteIcon.classList.add('btn-icon');
+                    deleteBtn.appendChild(deleteIcon);
+                    
+                    // 組合所有元素
+                    actionsDiv.appendChild(editBtn);
+                    actionsDiv.appendChild(deleteBtn);
+                    taskItem.appendChild(checkbox);
+                    taskItem.appendChild(taskTextSpan);
+                    taskItem.appendChild(actionsDiv);
+                    
+                    // 添加到列表
+                    taskList.appendChild(taskItem);
+                }
+                
+                // 清空輸入框
+                input.value = '';
+                
+                // 保存任務
+                saveTasks();
+            }
+        }
+        
+        /**
+         * 編輯任務
+         * @param {HTMLElement} taskItem - 任務項目元素
+         * @param {HTMLElement} taskTextSpan - 任務文字元素
+         */
+        function editTask(taskItem, taskTextSpan) {
+            // 獲取任務列表和所有任務項目
+            const taskList = document.getElementById('tasks');
+            const taskItems = taskList.querySelectorAll('.task-item');
+            
+            // 找到當前任務的索引
+            editingIndex = Array.from(taskItems).indexOf(taskItem);
+            
+            // 獲取當前任務文字
+            const currentText = taskTextSpan.textContent;
+            
+            // 創建編輯輸入框
+            const editInput = document.createElement('input');
+            editInput.type = 'text';
+            editInput.className = 'task-edit-input';
+            editInput.value = currentText;
+            
+            // 替換文字為輸入框
+            taskTextSpan.replaceWith(editInput);
+            editInput.focus();
+            
+            // 輸入框回車事件
+            editInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    // 更新任務文字
+                    taskTextSpan.textContent = editInput.value.trim();
+                    editInput.replaceWith(taskTextSpan);
+                    editingIndex = -1;
+                    saveTasks();
+                }
+            });
+            
+            // 輸入框失去焦點事件
+            editInput.addEventListener('blur', function() {
+                // 如果沒有按下回車，恢復原狀
+                taskTextSpan.textContent = editInput.value.trim();
+                editInput.replaceWith(taskTextSpan);
+                editingIndex = -1;
+                saveTasks();
+            });
+        }
+        
+        /**
+         * 顯示空狀態提示
+         */
+        function showEmptyState() {
+            const taskList = document.getElementById('tasks');
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'empty-state';
+            emptyDiv.textContent = '暫無任務，添加一個吧';
+            taskList.appendChild(emptyDiv);
+        }
+        
+        /**
+         * 保存任務到本地存儲
+         */
+        function saveTasks() {
+            const taskList = document.getElementById('tasks');
+            const tasks = [];
+            
+            // 收集所有任務數據
+            taskList.querySelectorAll('.task-item').forEach(item => {
+                tasks.push({
+                    text: item.querySelector('.task-text').textContent,
+                    completed: item.querySelector('.task-checkbox').checked
+                });
+            });
+            
+            // 保存到本地存儲
+            localStorage.setItem('todoTasks', JSON.stringify(tasks));
+        }
+        
+        /**
+         * 從本地存儲加載任務
+         */
+        function loadTasks() {
+            const savedTasks = localStorage.getItem('todoTasks');
+            if (savedTasks) {
+                const tasks = JSON.parse(savedTasks);
+                const taskList = document.getElementById('tasks');
+                
+                // 清空當前列表
+                taskList.innerHTML = '';
+                
+                // 如果沒有任務，顯示空狀態
+                if (tasks.length === 0) {
+                    showEmptyState();
+                    return;
+                }
+                
+                // 重新創建所有任務
+                tasks.forEach(task => {
+                    const taskItem = document.createElement('li');
+                    taskItem.className = 'task-item';
+                    
+                    // 創建勾選框
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'task-checkbox';
+                    if (task.completed) {
+                        checkbox.checked = true;
+                    }
+                    checkbox.onchange = function() {
+                        taskTextSpan.classList.toggle('completed');
+                        saveTasks();
+                    };
+                    
+                    // 創建任務文字
+                    const taskTextSpan = document.createElement('span');
+                    taskTextSpan.className = 'task-text';
+                    taskTextSpan.textContent = task.text;
+                    if (task.completed) {
+                        taskTextSpan.classList.add('completed');
+                    }
+                    
+                    // 創建操作按鈕容器
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'task-actions';
+                    
+                    // 創建編輯按鈕
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'task-btn edit-btn';
+                    editBtn.title = '編輯';
+                    editBtn.onclick = function() {
+                        editTask(taskItem, taskTextSpan);
+                    };
+                    
+                    // 添加編輯圖標
+                    const editIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    editIcon.innerHTML = '<use xlink:href="#edit-icon"></use>';
+                    editIcon.classList.add('btn-icon');
+                    editBtn.appendChild(editIcon);
+                    
+                    // 創建刪除按鈕
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'task-btn delete-btn';
+                    deleteBtn.title = '刪除';
+                    deleteBtn.onclick = function() {
+                        taskItem.remove();
+                        if (taskList.children.length === 0) {
+                            showEmptyState();
+                        }
+                        saveTasks();
+                    };
+                    
+                    // 添加刪除圖標
+                    const deleteIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    deleteIcon.innerHTML = '<use xlink:href="#delete-icon"></use>';
+                    deleteIcon.classList.add('btn-icon');
+                    deleteBtn.appendChild(deleteIcon);
+                    
+                    // 組合所有元素
+                    actionsDiv.appendChild(editBtn);
+                    actionsDiv.appendChild(deleteBtn);
+                    taskItem.appendChild(checkbox);
+                    taskItem.appendChild(taskTextSpan);
+                    taskItem.appendChild(actionsDiv);
+                    
+                    // 添加到列表
+                    taskList.appendChild(taskItem);
+                });
+            }
+        }
+        
+        // 初始化 - 加載保存的任務
+        window.onload = function() {
+            loadTasks();
+            
+            // 允許按回車鍵添加任務
+            document.getElementById('task-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+        };
+    </script>
 </body>
 </html>

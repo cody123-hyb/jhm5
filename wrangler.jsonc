@@ -7,8 +7,11 @@
 	},
 	"kv_namespaces": [
 		{
-			"binding": "JHM5_TODOS",
+			"binding": "jhm5_4_todos",
 			"id": "e2bf1690a1f144779e65432c39dd3fb2"
+		},
+		{
+			"binding": "jhm5_4_leaderboard"
 		}
 	]
 }

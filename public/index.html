@@ -34,6 +34,7 @@
             font-size: 2.8rem;
             margin-bottom: 10px;
             color: #222;
+            font-weight: 300;
         }
         
         .apps-grid {
@@ -50,6 +51,9 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
             border: 1px solid #e0e0e0;
+            text-decoration: none;
+            display: block;
+            color: inherit;
         }
         
         .app-card:hover {
@@ -113,50 +117,51 @@
         
         <main class="apps-grid">
             <!-- 井字游戏 -->
-            <div class="app-card" onclick="window.open('https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/tictactoe', '_blank')">
+            <a href="https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/tictactoe" class="app-card">
                 <div class="app-icon">⭕❌</div>
                 <div class="app-content">
                     <h2 class="app-title">井字遊戲</h2>
                     <p class="app-description">經典的井字遊戲，與朋友對戰或挑戰電腦，看誰能先連成一線。</p>
                 </div>
-            </div>
+            </a>
             
             <!-- 待办事项（本地） -->
-            <div class="app-card" onclick="window.open('https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/todo', '_blank')">
+            <a href="https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/todo" class="app-card">
                 <div class="app-icon">📝</div>
                 <div class="app-content">
                     <h2 class="app-title">待辦事項（本地）</h2>
                     <p class="app-description">本地儲存的待辦事項清單，幫助您管理日常任務，提高工作效率。</p>
                 </div>
-            </div>
+            </a>
             
             <!-- 待办事项（云端） -->
-            <div class="app-card" onclick="window.open('https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/todo2', '_blank')">
+            <a href="https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/todo2" class="app-card">
                 <div class="app-icon">☁️</div>
                 <div class="app-content">
                     <h2 class="app-title">待辦事項（雲端）</h2>
                     <p class="app-description">雲端同步的待辦事項，隨時隨地存取您的任務清單，跨設備無縫使用。</p>
                 </div>
-            </div>
+            </a>
             
             <!-- HKDSE分析 -->
-            <div class="app-card" onclick="window.open('https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/hkdse', '_blank')">
+            <a href="https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/hkdse" class="app-card">
                 <div class="app-icon">📊</div>
                 <div class="app-content">
                     <h2 class="app-title">HKDSE分析</h2>
                     <p class="app-description">香港中學文憑考試數據分析工具，幫助學生了解考試趨勢與準備策略。</p>
                 </div>
-            </div>
+            </a>
             
             <!-- 数学反应挑战 -->
-            <div class="app-card" onclick="window.open('https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/challenge', '_blank')">
+            <a href="https://symmetrical-engine-jjq6rp9qwxrj39w4-8787.app.github.dev/challenge" class="app-card">
                 <div class="app-icon">🧮</div>
                 <div class="app-content">
                     <h2 class="app-title">數學反應挑戰</h2>
                     <p class="app-description">測試您的數學反應能力，在限定時間內解答數學問題，挑戰自我極限。</p>
                 </div>
-            </div>
+            </a>
         </main>
     </div>
 </body>
+</html>
 </html>
